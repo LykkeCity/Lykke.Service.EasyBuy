@@ -18,6 +18,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Lykke.Common.ExchangeAdapter" Version="5.1.0" />
+    <PackageReference Include="Lykke.RabbitMqBroker" Version="7.8.1" />
     <PackageReference Include="Lykke.Sdk" Version="5.10.2" />
   </ItemGroup>
   <ItemGroup>

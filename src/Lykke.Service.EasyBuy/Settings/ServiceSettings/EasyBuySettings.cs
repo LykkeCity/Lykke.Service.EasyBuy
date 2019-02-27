@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using Lykke.Service.EasyBuy.Settings.ServiceSettings.Db;
 
 namespace Lykke.Service.EasyBuy.Settings.ServiceSettings
@@ -7,5 +8,7 @@ namespace Lykke.Service.EasyBuy.Settings.ServiceSettings
     public class EasyBuySettings
     {
         public DbSettings Db { get; set; }
+        
+        public OrderBookSourceSettings[] OrderBookSources { set; get; }
     }
 }
