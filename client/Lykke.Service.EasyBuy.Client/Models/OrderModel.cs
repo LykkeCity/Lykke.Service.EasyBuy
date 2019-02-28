@@ -43,5 +43,10 @@ namespace Lykke.Service.EasyBuy.Client.Models
         /// Date and time of order creation.
         /// </summary>
         public DateTime CreatedTime { set; get; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public OrderStatusModel Status { set; get; }
     }
 }
