@@ -1,4 +1,5 @@
 ﻿using Lykke.HttpClientGenerator;
+using Lykke.Service.EasyBuy.Client.Api;
 
 namespace Lykke.Service.EasyBuy.Client
 {
@@ -10,6 +11,30 @@ namespace Lykke.Service.EasyBuy.Client
         /// </summary> 
         public EasyBuyClient(IHttpClientGenerator httpClientGenerator)
         {
+            BalancesApi = httpClientGenerator.Generate<IBalancesApi>();
+            InstrumentsApi = httpClientGenerator.Generate<IInstrumentsApi>();
+            OrdersApi = httpClientGenerator.Generate<IOrdersApi>();
+            PricesApi = httpClientGenerator.Generate<IPricesApi>();
+            SettingsApi = httpClientGenerator.Generate<ISettingsApi>();
+            TradesApi = httpClientGenerator.Generate<ITradesApi>();
         }
+
+        /// <inheritdoc />
+        public IBalancesApi BalancesApi { get; }
+        
+        /// <inheritdoc />
+        public IInstrumentsApi InstrumentsApi { get; }
+        
+        /// <inheritdoc />
+        public IOrdersApi OrdersApi { get; }
+        
+        /// <inheritdoc />
+        public IPricesApi PricesApi { get; }
+        
+        /// <inheritdoc />
+        public ISettingsApi SettingsApi { get; }
+        
+        /// <inheritdoc />
+        public ITradesApi TradesApi { get; }
     }
 }

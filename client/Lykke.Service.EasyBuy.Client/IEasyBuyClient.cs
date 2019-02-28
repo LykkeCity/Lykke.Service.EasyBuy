@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using Lykke.Service.EasyBuy.Client.Api;
 
 namespace Lykke.Service.EasyBuy.Client
 {
@@ -8,5 +9,34 @@ namespace Lykke.Service.EasyBuy.Client
     [PublicAPI]
     public interface IEasyBuyClient
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        IBalancesApi BalancesApi { get; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        IInstrumentsApi InstrumentsApi { get; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        IOrdersApi OrdersApi { get; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        IPricesApi PricesApi { get; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        ISettingsApi SettingsApi { get; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        ITradesApi TradesApi { get; }
     }
 }
