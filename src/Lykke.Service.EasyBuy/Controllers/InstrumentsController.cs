@@ -72,7 +72,7 @@ namespace Lykke.Service.EasyBuy.Controllers
 
                 await _instrumentsService.AddAsync(instrument);
             }
-            catch (InvalidOperationException exception)
+            catch (OperationFailedException exception)
             {
                 throw new ValidationApiException(HttpStatusCode.BadRequest, exception.Message);
             }
@@ -115,7 +115,7 @@ namespace Lykke.Service.EasyBuy.Controllers
             {
                 throw new ValidationApiException(HttpStatusCode.NotFound, "Instrument does not exist.");
             }
-            catch (InvalidOperationException exception)
+            catch (OperationFailedException exception)
             {
                 throw new ValidationApiException(HttpStatusCode.BadRequest, exception.Message);
             }
