@@ -12,7 +12,7 @@ namespace Lykke.Service.EasyBuy.Controllers
     [Route("/api/[controller]")]
     public class BalancesController : Controller, IBalancesApi
     {
-        public readonly IBalancesService _balancesService;
+        private readonly IBalancesService _balancesService;
         
         public BalancesController(
             IBalancesService balancesService)
