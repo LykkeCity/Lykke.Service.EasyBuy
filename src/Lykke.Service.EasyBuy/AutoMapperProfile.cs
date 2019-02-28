@@ -12,6 +12,11 @@ namespace Lykke.Service.EasyBuy
         {
             CreateMap<Instrument, InstrumentModel>(MemberList.Source);
             CreateMap<InstrumentEditModel, Instrument>(MemberList.Destination);
+            
+            CreateMap<Order, OrderModel>(MemberList.Destination)
+                .ForMember(o => o.Volume, opt => opt.MapFrom(x => x.BaseVolume));
+            
+            CreateMap<PriceSnapshot, PriceModel>(MemberList.Destination);
 
             CreateMap<Common.ExchangeAdapter.Contracts.OrderBookItem, OrderBookLimitOrder>(MemberList.Destination);
             CreateMap<Lykke.Common.ExchangeAdapter.Contracts.OrderBook, OrderBook>(MemberList.Destination)

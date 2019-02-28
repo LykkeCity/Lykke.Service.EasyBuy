@@ -162,7 +162,7 @@ namespace Lykke.Service.EasyBuy.DomainServices
                         WalletId = order.WalletId,
                         OrderId = order.Id,
                         Type = order.Type,
-                        Timestamp = DateTime.UtcNow
+                        DateTime = DateTime.UtcNow
                     });
                 }
                 catch (Exception e)
@@ -172,9 +172,9 @@ namespace Lykke.Service.EasyBuy.DomainServices
             }
         }
 
-        public Task<Order> GetAsync(string walletId, string id)
+        public async Task<Order> GetAsync(string walletId, string id)
         {
-            var order = _ordersRepository.GetAsync(walletId, id);
+            var order = await _ordersRepository.GetAsync(walletId, id);
 
             if (order == null)
                 throw new EntityNotFoundException(nameof(id), id);

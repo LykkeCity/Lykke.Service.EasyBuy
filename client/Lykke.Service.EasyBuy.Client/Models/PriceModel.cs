@@ -25,9 +25,14 @@ namespace Lykke.Service.EasyBuy.Client.Models
         public OrderType Type { set; get; }
         
         /// <summary>
-        /// Desired volume of the operation.
+        /// Possible base volume of the operation.
         /// </summary>
-        public decimal Volume { set; get; }
+        public decimal BaseVolume { set; get; }
+        
+        /// <summary>
+        /// Desired quoting volume of the operation.
+        /// </summary>
+        public decimal QuotingVolume { set; get; }
         
         /// <summary>
         /// Markup that was applied to the price.

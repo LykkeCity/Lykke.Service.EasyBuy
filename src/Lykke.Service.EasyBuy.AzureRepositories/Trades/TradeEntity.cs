@@ -5,17 +5,17 @@ using Lykke.AzureStorage.Tables.Entity.Annotation;
 using Lykke.AzureStorage.Tables.Entity.ValueTypesMerging;
 using Lykke.Service.EasyBuy.Domain;
 
-namespace Lykke.Service.EasyBuy.AzureRepositories.PriceSnapshots
+namespace Lykke.Service.EasyBuy.AzureRepositories.Trades
 {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     [ValueTypeMergingStrategy(ValueTypeMergingStrategy.UpdateAlways)]
-    public class PriceSnapshotEntity : AzureTableEntity
+    public class TradeEntity : AzureTableEntity
     {
-        public PriceSnapshotEntity()
+        public TradeEntity()
         {
         }
 
-        public PriceSnapshotEntity(string partitionKey, string rowKey)
+        public TradeEntity(string partitionKey, string rowKey)
         {
             PartitionKey = partitionKey;
             RowKey = rowKey;
@@ -25,24 +25,14 @@ namespace Lykke.Service.EasyBuy.AzureRepositories.PriceSnapshots
         
         public string WalletId { set; get; }
         
-        public string AssetPair { set; get; }
+        public string OrderId { set; get; }
         
         public OrderType Type { set; get; }
-        
-        public decimal Price { set; get; }
         
         public decimal BaseVolume { set; get; }
         
         public decimal QuotingVolume { set; get; }
         
-        public decimal Markup { set; get; }
-        
-        public decimal OriginalPrice { set; get; }
-        
-        public string Exchange { set; get; }
-        
-        public DateTime ValidFrom { set; get; }
-        
-        public DateTime ValidTo { set; get; }
+        public DateTime DateTime { set; get; }
     }
 }

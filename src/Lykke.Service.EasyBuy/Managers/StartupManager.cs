@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Sdk;
+using Lykke.Service.EasyBuy.DomainServices.Timers;
 using Lykke.Service.EasyBuy.Rabbit.Subscribers;
 
 namespace Lykke.Service.EasyBuy.Managers
@@ -10,11 +11,14 @@ namespace Lykke.Service.EasyBuy.Managers
     public class StartupManager : IStartupManager
     {
         private readonly IEnumerable<OrderBookSubscriber> _orderBookSubscribers;
+        private readonly OrdersProcessorTimer _ordersProcessorTimer;
 
         public StartupManager(
-            IEnumerable<OrderBookSubscriber> orderBookSubscribers)
+            IEnumerable<OrderBookSubscriber> orderBookSubscribers,
+            OrdersProcessorTimer ordersProcessorTimer)
         {
             _orderBookSubscribers = orderBookSubscribers;
+            _ordersProcessorTimer = ordersProcessorTimer;
         }
         
         public Task StartAsync()
@@ -23,6 +27,8 @@ namespace Lykke.Service.EasyBuy.Managers
             {
                 subscriber.Start();
             }
+            
+            _ordersProcessorTimer.Start();
 
             return Task.CompletedTask;
         }

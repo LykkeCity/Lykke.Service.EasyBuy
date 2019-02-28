@@ -16,6 +16,6 @@ namespace Lykke.Service.EasyBuy.Domain
         
         public decimal QuotingVolume { set; get; }
         
-        public DateTime Timestamp { set; get; }
+        public DateTime DateTime { set; get; }
     }
 }

@@ -1,8 +1,11 @@
+using JetBrains.Annotations;
+
 namespace Lykke.Service.EasyBuy.Client.Models
 {
     /// <summary>
     /// Direction of the order.
     /// </summary>
+    [PublicAPI]
     public enum OrderType
     {
         /// <summary>

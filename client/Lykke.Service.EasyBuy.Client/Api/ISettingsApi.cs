@@ -6,7 +6,7 @@ using Refit;
 namespace Lykke.Service.EasyBuy.Client.Api
 {
     /// <summary>
-    /// Provides method to work with EasyBuy settings.
+    /// Provides methods to work with EasyBuy settings.
     /// </summary>
     [PublicAPI]
     public interface ISettingsApi

@@ -47,6 +47,7 @@ namespace Lykke.Service.EasyBuy.Controllers
         }
 
         /// <inheritdoc/>
+        [HttpPost]
         [ProducesResponseType(typeof(PriceModel), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorResponse), (int) HttpStatusCode.BadRequest)]
         public async Task<PriceModel> CalculatePriceAsync([FromBody] CalculatePriceModel model)

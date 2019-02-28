@@ -4,44 +4,44 @@ using JetBrains.Annotations;
 namespace Lykke.Service.EasyBuy.Client.Models
 {
     /// <summary>
-    /// Represents user's order.
+    /// Represents executed trade.
     /// </summary>
     [PublicAPI]
-    public class OrderModel
+    public class TradeModel
     {
         /// <summary>
-        /// Order's unique identifier.
+        /// Trade's unique identifier.
         /// </summary>
         public string Id { set; get; }
         
         /// <summary>
-        /// Client's wallet Id.
+        /// Id of user's wallet.
         /// </summary>
         public string WalletId { set; get; }
         
         /// <summary>
-        /// Asset pair of the order.
+        /// Id of the order.
         /// </summary>
-        public string AssetPair { set; get; }
+        public string OrderId { set; get; }
         
         /// <summary>
-        /// Type of the order.
+        /// Order type.
         /// </summary>
         public OrderType Type { set; get; }
         
         /// <summary>
-        /// Id of the calculated price snapshot.
+        /// Base volume.
         /// </summary>
-        public string PriceId { set; get; }
+        public decimal BaseVolume { set; get; }
         
         /// <summary>
-        /// Desired volume of the order.
+        /// Quoting volume.
         /// </summary>
-        public decimal Volume { set; get; }
+        public decimal QuotingVolume { set; get; }
         
         /// <summary>
-        /// Date and time of order creation.
+        /// Date and time when trade was performed.
         /// </summary>
-        public DateTime CreatedTime { set; get; }
+        public DateTime DateTime { set; get; }
     }
 }

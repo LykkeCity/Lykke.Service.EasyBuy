@@ -1,4 +1,19 @@
 EasyBuyService:
+  InstanceName:
+    settings-key: EasyBuyService-InstanceName
+
+  ClientId:
+    settings-key: EasyBuyService-ClientId
+
+  DefaultMarkup:
+    settings-key: EasyBuyService-DefaultMarkup
+
+  TimerPeriod:
+    settings-key: EasyBuyService-TimerPeriod
+
+  DefaultPriceLifetime:
+    settings-key: EasyBuyService-DefaultPriceLifetime
+
   Db:
     DataConnectionString:
       settings-key: EasyBuyService-DataConnectionString
@@ -10,6 +25,11 @@ EasyBuyService:
       types:
         - AzureTableStorage
 
+  OrderBookSources:
+    settings-key: EasyBuyService-OrderBookSources
+      types:
+        - JsonArray
+
 SlackNotifications:
   AzureQueue:
     ConnectionString:
@@ -18,6 +38,22 @@ SlackNotifications:
         - AzureTableStorage
     QueueName:
       settings-key: SlackQueueName
+
+AssetsServiceClient:
+  ServiceUrl:
+    settings-key: AssetsServiceUrl
+
+BalancesServiceClient:
+  ServiceUrl:
+    settings-key: BalancesServiceUrl
+
+ExchangeOperationsServiceClient:
+  ServiceUrl:
+    settings-key: ExchangeOperationsServiceUrl
+
+ClientAccountServiceClient:
+  ServiceUrl:
+    settings-key: ClientAccountServiceUrl
 
 MonitoringServiceClient:
   MonitoringServiceUrl:

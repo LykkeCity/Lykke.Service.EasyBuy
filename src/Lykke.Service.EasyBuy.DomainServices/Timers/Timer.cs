@@ -7,12 +7,7 @@ using Lykke.Common.Log;
 namespace Lykke.Service.EasyBuy.DomainServices.Timers
 {
     public abstract class Timer
-    {
-        public Timer(ILog log)
-        {
-            Log = log;
-        }
-        
+    {   
         protected ILog Log;
 
         private bool _started;
