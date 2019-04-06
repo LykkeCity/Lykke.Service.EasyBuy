@@ -39,7 +39,7 @@ namespace Lykke.Service.EasyBuy.Managers
 
             _pricesPublisher.Start();
 
-            await _pricesGenerator.StartActives();
+            await _pricesGenerator.StartAll();
         }
     }
 }

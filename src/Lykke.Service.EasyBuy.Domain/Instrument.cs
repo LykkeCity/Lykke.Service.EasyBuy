@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Lykke.Service.EasyBuy.Domain
 {
@@ -10,6 +10,9 @@ namespace Lykke.Service.EasyBuy.Domain
         
         public TimeSpan? PriceLifetime { set; get; }
         
+        /// <summary>
+        /// How long a price works after lifetime ends
+        /// </summary>
         public TimeSpan? OverlapTime { set; get; }
         
         public TimeSpan? RecalculationInterval { set; get; }

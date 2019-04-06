@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Lykke.Service.EasyBuy.Domain
 {
@@ -10,6 +10,9 @@ namespace Lykke.Service.EasyBuy.Domain
         
         public OrderType Type { set; get; }
         
+        /// <summary>
+        /// Final price with markup
+        /// </summary>
         public decimal Value { set; get; }
         
         public decimal BaseVolume { set; get; }

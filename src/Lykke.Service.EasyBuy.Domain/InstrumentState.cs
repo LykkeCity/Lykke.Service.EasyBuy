@@ -1,9 +1,11 @@
-namespace Lykke.Service.EasyBuy.Domain
+﻿namespace Lykke.Service.EasyBuy.Domain
 {
     public enum InstrumentState
     {
         None,
+
         Active,
+
         Disabled
     }
 }

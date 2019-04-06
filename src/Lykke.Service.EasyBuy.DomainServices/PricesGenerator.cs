@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
@@ -21,9 +21,9 @@ namespace Lykke.Service.EasyBuy.DomainServices
         private readonly ISettingsService _settingsService;
         private readonly ILog _log;
 
-        private readonly ConcurrentDictionary<string, CancellationTokenSource> _tokenSources;
-        private readonly ConcurrentDictionary<string, Task> _cycleTasks;
-        private readonly SemaphoreSlim _startLock;
+        private readonly SemaphoreSlim _lock;
+        private readonly ConcurrentDictionary<string, Task> _tasks;
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> _cancelationTokens;
 
         public PricesGenerator(
             IInstrumentsAccessService instrumentsAccessService,
@@ -38,12 +38,12 @@ namespace Lykke.Service.EasyBuy.DomainServices
             _settingsService = settingsService;
             _log = logFactory.CreateLog(this);
 
-            _tokenSources = new ConcurrentDictionary<string, CancellationTokenSource>();
-            _cycleTasks = new ConcurrentDictionary<string, Task>();
-            _startLock = new SemaphoreSlim(1, 1);
+            _cancelationTokens = new ConcurrentDictionary<string, CancellationTokenSource>();
+            _tasks = new ConcurrentDictionary<string, Task>();
+            _lock = new SemaphoreSlim(1, 1);
         }
 
-        public async Task StartActives()
+        public async Task StartAll()
         {
             foreach (var activeInstrument in (await _instrumentsAccessService.GetAllAsync()).Where(x =>
                 x.State == InstrumentState.Active))
@@ -54,7 +54,7 @@ namespace Lykke.Service.EasyBuy.DomainServices
 
         public async Task StopAll()
         {
-            foreach (var assetPair in _cycleTasks.Keys)
+            foreach (var assetPair in _tasks.Keys)
             {
                 await Stop(assetPair);
             }
@@ -64,7 +64,7 @@ namespace Lykke.Service.EasyBuy.DomainServices
         {
             try
             {
-                await _startLock.WaitAsync();
+                await _lock.WaitAsync();
 
                 _log.Info(nameof(Start), "Starting publishing.", assetPair);
 
@@ -74,10 +74,10 @@ namespace Lykke.Service.EasyBuy.DomainServices
                 if (instrument == null || instrument.State != InstrumentState.Active)
                     throw new FailedOperationException($"No active instrument {assetPair} was found.");
 
-                if (_tokenSources.ContainsKey(assetPair))
+                if (_cancelationTokens.ContainsKey(assetPair))
                     throw new FailedOperationException($"Instrument {assetPair} already running.");
 
-                _tokenSources[assetPair] = new CancellationTokenSource();
+                _cancelationTokens[assetPair] = new CancellationTokenSource();
 
                 var cycleTask = Task.Run(async () => { await HandleGenerationCycleAsync(instrument.AssetPair); })
                     .ContinueWith(t =>
@@ -86,13 +86,13 @@ namespace Lykke.Service.EasyBuy.DomainServices
                             _log.Error(t.Exception, "Something went wrong in calculation and publishing thread.");
                     });
 
-                _cycleTasks[assetPair] = cycleTask;
+                _tasks[assetPair] = cycleTask;
 
                 _log.Info(nameof(Start), "Started.", assetPair);
             }
             finally
             {
-                _startLock.Release();
+                _lock.Release();
             }
         }
 
@@ -100,80 +100,69 @@ namespace Lykke.Service.EasyBuy.DomainServices
         {
             try
             {
-                await _startLock.WaitAsync();
+                await _lock.WaitAsync();
 
                 _log.Info(nameof(Stop), "Stopping publishing.", assetPair);
 
-                if (!_cycleTasks.ContainsKey(assetPair) || !_tokenSources.ContainsKey(assetPair))
+                if (!_tasks.ContainsKey(assetPair) || !_cancelationTokens.ContainsKey(assetPair))
                     throw new FailedOperationException($"No instrument {assetPair} was found running.");
 
-                _tokenSources[assetPair].Cancel();
+                _cancelationTokens[assetPair].Cancel();
 
-                await _cycleTasks[assetPair];
+                await _tasks[assetPair];
 
-                _tokenSources.TryRemove(assetPair, out _);
-                _cycleTasks.TryRemove(assetPair, out _);
+                _cancelationTokens.TryRemove(assetPair, out _);
+                _tasks.TryRemove(assetPair, out _);
 
                 _log.Info(nameof(Stop), "Stopped.", assetPair);
             }
             finally
             {
-                _startLock.Release();
+                _lock.Release();
             }
         }
 
+
         private async Task HandleGenerationCycleAsync(string assetPair)
         {
-            var lastCalculationTime = DateTime.UtcNow;
+            var calculationTime = DateTime.UtcNow;
 
-            var instrument = await _instrumentsAccessService.GetByAssetPairIdAsync(assetPair);
-
-            var nextPack = await TryToCalculateNext(instrument.AssetPair, instrument.Volume, lastCalculationTime);
-                    
-            var defaultSettings = await _settingsService.GetDefaultSettingsAsync();
-
-            var lastPriceLifetime = instrument.PriceLifetime ?? defaultSettings.PriceLifetime;
-            
-            var recalculationThreshold = instrument.RecalculationInterval ?? defaultSettings.RecalculationInterval;
-
-            while (_tokenSources[instrument.AssetPair] != null &&
-                   !_tokenSources[instrument.AssetPair].IsCancellationRequested)
+            while (!_cancelationTokens.ContainsKey(assetPair) &&
+                   !_cancelationTokens[assetPair].IsCancellationRequested)
             {
                 try
                 {
-                    instrument = await _instrumentsAccessService.GetByAssetPairIdAsync(assetPair);
+                    var defaultSettings = await _settingsService.GetDefaultSettingsAsync();
 
-                    defaultSettings = await _settingsService.GetDefaultSettingsAsync();
+
+                    var instrument = await _instrumentsAccessService.GetByAssetPairIdAsync(assetPair);
+
+                    var nextPack = await TryToCalculateNext(instrument.AssetPair, instrument.Volume, calculationTime);
+
+                    TryToPublish(instrument.AssetPair, nextPack);
+                    
+
+                    var recalculationInterval = instrument.RecalculationInterval ?? defaultSettings.RecalculationInterval;
 
                     var priceLifetime = instrument.PriceLifetime ?? defaultSettings.PriceLifetime;
 
-                    lastPriceLifetime = priceLifetime;
 
-                    TryToPublish(instrument.AssetPair, nextPack);
+                    DateTime whenToStartNextTime = calculationTime + priceLifetime - recalculationInterval;
 
-                    await Task.Delay(
-                        Min(priceLifetime - recalculationThreshold,
-                            lastCalculationTime + priceLifetime - DateTime.UtcNow),
-                        _tokenSources[instrument.AssetPair].Token);
+                    TimeSpan delayUntilNextTime = whenToStartNextTime - DateTime.UtcNow;
 
-                    recalculationThreshold = instrument.RecalculationInterval ?? defaultSettings.RecalculationInterval;
+                    await Task.Delay(delayUntilNextTime, _cancelationTokens[instrument.AssetPair].Token);
 
-                    nextPack = await TryToCalculateNext(instrument.AssetPair, instrument.Volume,
-                        lastCalculationTime + lastPriceLifetime);
 
-                    await Task.Delay(
-                        Max(lastCalculationTime + priceLifetime - DateTime.UtcNow, TimeSpan.Zero),
-                        _tokenSources[instrument.AssetPair].Token);
-
-                    lastCalculationTime += priceLifetime;
+                    calculationTime += priceLifetime;
                 }
                 catch (TaskCanceledException)
                 {
-                    
+                    _log.Info($"Price generation was stopped.", assetPair);
                 }
                 catch (Exception e)
                 {
-                    _log.Error(e, e.Message, instrument.AssetPair);
+                    _log.Error(e, e.Message, assetPair);
                 }
             }
         }
@@ -185,11 +174,11 @@ namespace Lykke.Service.EasyBuy.DomainServices
                 if (pack != null)
                 {
                     _pricesPublisher.Publish(pack.Sell);
-                    //_pricesPublisher.Publish(_nextPriceToPublish[assetPair].Buy);
+                    //_pricesPublisher.Publish(pack.Buy);
                 }
                 else
                 {
-                    _log.Info(nameof(TryToPublish), "Skipping publishing.", assetPair);
+                    _log.Info("Skipping publishing.", assetPair);
                 }
             }
             catch (Exception e)
@@ -202,20 +191,20 @@ namespace Lykke.Service.EasyBuy.DomainServices
         {
             try
             {
-                _log.Info(nameof(TryToCalculateNext), "Calculating next pack.", new
+                var context = new { assetPair, volume, validFrom };
+
+                _log.Info("Calculating next pack.", context);
+
+                var result = new PricesPack
                 {
-                    assetPair,
-                    volume,
-                    validFrom
-                });
-                
-                return new PricesPack
-                {
-                    Buy = await _pricesService.CreateAsync(assetPair, OrderType.Buy,
-                        volume, validFrom),
-                    Sell = await _pricesService.CreateAsync(assetPair, OrderType.Sell,
-                        volume, validFrom)
+                    Buy = await _pricesService.CreateAsync(assetPair, OrderType.Buy, volume, validFrom),
+
+                    Sell = await _pricesService.CreateAsync(assetPair, OrderType.Sell, volume, validFrom)
                 };
+
+                _log.Info("Calculating next pack - finished.", context);
+
+                return result;
             }
             catch (Exception e)
             {
@@ -224,14 +213,14 @@ namespace Lykke.Service.EasyBuy.DomainServices
             }
         }
 
-        private static TimeSpan Max(TimeSpan first, TimeSpan second)
-        {
-            return first > second ? first : second;
-        }
-
         private static TimeSpan Min(TimeSpan first, TimeSpan second)
         {
             return first < second ? first : second;
+        }
+
+        private static TimeSpan Max(TimeSpan first, TimeSpan second)
+        {
+            return first > second ? first : second;
         }
     }
 }

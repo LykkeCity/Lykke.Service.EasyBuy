@@ -1,12 +1,15 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Lykke.Service.EasyBuy.Domain.Services
 {
     public interface IPricesGenerator
     {
-        Task StartActives();
-        Task Start(string assetPair);
+        Task StartAll();
+
         Task StopAll();
+
+        Task Start(string assetPair);
+
         Task Stop(string assetPair);
     }
 }

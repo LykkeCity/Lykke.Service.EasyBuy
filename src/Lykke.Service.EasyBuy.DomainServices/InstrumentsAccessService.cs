@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -76,7 +76,7 @@ namespace Lykke.Service.EasyBuy.DomainServices
             
             if (!_orderBookService.GetExistingExchanges().Contains(instrument.Exchange))
             {
-                throw new FailedOperationException("Unknown exchange.");
+                throw new FailedOperationException($"Unknown '{instrument.Exchange}' exchange.");
             }
 
             var stateChanged = currentInstrument.State != instrument.State;
