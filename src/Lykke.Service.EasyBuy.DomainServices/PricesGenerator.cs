@@ -125,36 +125,47 @@ namespace Lykke.Service.EasyBuy.DomainServices
 
         private async Task HandleGenerationCycleAsync(string assetPair)
         {
-            var calculationTime = DateTime.UtcNow;
+            var instrument = await _instrumentsAccessService.GetByAssetPairIdAsync(assetPair);
 
-            while (!_cancelationTokens.ContainsKey(assetPair) &&
-                   !_cancelationTokens[assetPair].IsCancellationRequested)
+
+            var lastCalculationTime = DateTime.UtcNow;
+
+            var nextPack = await TryToCalculateNext(instrument.AssetPair, instrument.Volume, lastCalculationTime);
+
+
+            var defaultSettings = await _settingsService.GetDefaultSettingsAsync();
+
+            var recalculationInterval = instrument.RecalculationInterval ?? defaultSettings.RecalculationInterval;
+
+
+            while (_cancelationTokens[instrument.AssetPair] != null &&
+                   !_cancelationTokens[instrument.AssetPair].IsCancellationRequested)
             {
                 try
                 {
-                    var defaultSettings = await _settingsService.GetDefaultSettingsAsync();
+                    instrument = await _instrumentsAccessService.GetByAssetPairIdAsync(assetPair);
 
-
-                    var instrument = await _instrumentsAccessService.GetByAssetPairIdAsync(assetPair);
-
-                    var nextPack = await TryToCalculateNext(instrument.AssetPair, instrument.Volume, calculationTime);
-
-                    TryToPublish(instrument.AssetPair, nextPack);
-                    
-
-                    var recalculationInterval = instrument.RecalculationInterval ?? defaultSettings.RecalculationInterval;
+                    defaultSettings = await _settingsService.GetDefaultSettingsAsync();
 
                     var priceLifetime = instrument.PriceLifetime ?? defaultSettings.PriceLifetime;
 
+                    TryToPublish(instrument.AssetPair, nextPack);
 
-                    DateTime whenToStartNextTime = calculationTime + priceLifetime - recalculationInterval;
+                    await Task.Delay(
+                        Min(priceLifetime - recalculationInterval,  // 20 sec - 100 ms
+                            lastCalculationTime + priceLifetime - DateTime.UtcNow), // [now - calcTime] + 20 sec - now = 20 sec - calcTime
+                        _cancelationTokens[instrument.AssetPair].Token);
 
-                    TimeSpan delayUntilNextTime = whenToStartNextTime - DateTime.UtcNow;
+                    recalculationInterval = instrument.RecalculationInterval ?? defaultSettings.RecalculationInterval;
 
-                    await Task.Delay(delayUntilNextTime, _cancelationTokens[instrument.AssetPair].Token);
+                    nextPack = await TryToCalculateNext(instrument.AssetPair, instrument.Volume,
+                        lastCalculationTime + priceLifetime);
 
+                    await Task.Delay(
+                        Max(lastCalculationTime + priceLifetime - DateTime.UtcNow, TimeSpan.Zero),  // [now - calcTime] + 20 sec - now = 20 sec - calcTime
+                        _cancelationTokens[instrument.AssetPair].Token);
 
-                    calculationTime += priceLifetime;
+                    lastCalculationTime += priceLifetime;
                 }
                 catch (TaskCanceledException)
                 {
@@ -162,7 +173,7 @@ namespace Lykke.Service.EasyBuy.DomainServices
                 }
                 catch (Exception e)
                 {
-                    _log.Error(e, e.Message, assetPair);
+                    _log.Error(e, e.Message, instrument.AssetPair);
                 }
             }
         }
