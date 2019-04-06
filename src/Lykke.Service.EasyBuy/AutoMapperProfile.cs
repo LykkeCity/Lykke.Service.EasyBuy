@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using JetBrains.Annotations;
 using Lykke.Service.EasyBuy.Client.Models;
 using Lykke.Service.EasyBuy.Domain;
@@ -19,7 +19,7 @@ namespace Lykke.Service.EasyBuy
             CreateMap<Price, PriceModel>(MemberList.Destination);
 
             CreateMap<Common.ExchangeAdapter.Contracts.OrderBookItem, OrderBookLimitOrder>(MemberList.Destination);
-            CreateMap<Lykke.Common.ExchangeAdapter.Contracts.OrderBook, OrderBook>(MemberList.Destination)
+            CreateMap<Common.ExchangeAdapter.Contracts.OrderBook, OrderBook>(MemberList.Destination)
                 .ForMember(o => o.AssetPair, opt => opt.MapFrom(x => x.Asset))
                 .ForMember(o => o.SellLimitOrders, opt => opt.MapFrom(x => x.Asks))
                 .ForMember(o => o.BuyLimitOrders, opt => opt.MapFrom(x => x.Bids));

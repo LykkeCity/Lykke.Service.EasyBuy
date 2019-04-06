@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using JetBrains.Annotations;
 
 namespace Lykke.Service.EasyBuy.Client.Models
@@ -30,8 +30,13 @@ namespace Lykke.Service.EasyBuy.Client.Models
         public TimeSpan? RecalculationInterval { set; get; }
         
         /// <summary>
-        /// Default orders resolving period.
+        /// Default orders processing period.
         /// </summary>
-        public TimeSpan? TimerPeriod { set; get; }
+        public TimeSpan? OrdersProcessorPeriod { set; get; }
+
+        /// <summary>
+        /// Default price generation period.
+        /// </summary>
+        public TimeSpan? PriceGeneratorPeriod { set; get; }
     }
 }

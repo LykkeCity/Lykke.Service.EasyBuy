@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using AzureStorage;
@@ -16,7 +16,7 @@ namespace Lykke.Service.EasyBuy.AzureRepositories.Instruments
             _storage = storage;
         }
 
-        public async Task<IReadOnlyCollection<Instrument>> GetAllAsync()
+        public async Task<IReadOnlyList<Instrument>> GetAllAsync()
         {
             return Mapper.Map<List<Instrument>>(await _storage.GetDataAsync(GetPartitionKey()));
         }

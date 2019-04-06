@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using JetBrains.Annotations;
 using Lykke.Service.EasyBuy.Domain.Services;
 using Lykke.Service.EasyBuy.DomainServices.Timers;
@@ -70,6 +70,10 @@ namespace Lykke.Service.EasyBuy.DomainServices
         private void LoadTimers(ContainerBuilder builder)
         {
             builder.RegisterType<OrdersProcessorTimer>()
+                .AsSelf()
+                .SingleInstance();
+
+            builder.RegisterType<PricesGeneratorTimer>()
                 .AsSelf()
                 .SingleInstance();
         }

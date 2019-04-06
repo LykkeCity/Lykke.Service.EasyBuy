@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using JetBrains.Annotations;
 using Lykke.Service.EasyBuy.AzureRepositories.DefaultSettings;
 using Lykke.Service.EasyBuy.AzureRepositories.Instruments;

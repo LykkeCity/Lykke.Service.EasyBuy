@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Service.EasyBuy.Domain;
@@ -10,17 +10,13 @@ namespace Lykke.Service.EasyBuy.DomainServices
     public class InstrumentsService : IInstrumentsService
     {
         private readonly IInstrumentsAccessService _instrumentsAccessService;
-        private readonly IPricesGenerator _pricesGenerator;
 
-        public InstrumentsService(
-            IInstrumentsAccessService instrumentsAccessService,
-            IPricesGenerator pricesGenerator)
+        public InstrumentsService(IInstrumentsAccessService instrumentsAccessService)
         {
             _instrumentsAccessService = instrumentsAccessService;
-            _pricesGenerator = pricesGenerator;
         }
 
-        public Task<IReadOnlyCollection<Instrument>> GetAllAsync()
+        public Task<IReadOnlyList<Instrument>> GetAllAsync()
         {
             return _instrumentsAccessService.GetAllAsync();
         }
@@ -33,32 +29,11 @@ namespace Lykke.Service.EasyBuy.DomainServices
         public async Task AddAsync(Instrument instrument)
         {
             await _instrumentsAccessService.AddAsync(instrument);
-
-            if (instrument.State == InstrumentState.Active)
-            {
-                await _pricesGenerator.Start(instrument.AssetPair);
-            }
-            else
-            {
-                await _pricesGenerator.Stop(instrument.AssetPair);
-            }
         }
 
         public async Task UpdateAsync(Instrument instrument)
         {
-            var shouldUpdateState = await _instrumentsAccessService.UpdateAsync(instrument);
-
-            if (shouldUpdateState)
-            {
-                if (instrument.State == InstrumentState.Active)
-                {
-                    await _pricesGenerator.Start(instrument.AssetPair);
-                }
-                else
-                {
-                    await _pricesGenerator.Stop(instrument.AssetPair);
-                }
-            }
+            await _instrumentsAccessService.UpdateAsync(instrument);
         }
 
         public Task DeleteAsync(string assetPair)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Service.EasyBuy.Domain;
@@ -50,9 +50,13 @@ namespace Lykke.Service.EasyBuy.DomainServices
                     OverlapTime = defaultSettings?.OverlapTime ?? TimeSpan.Zero,
                     PriceLifetime = defaultSettings?.PriceLifetime ?? TimeSpan.FromSeconds(20),
                     RecalculationInterval = defaultSettings?.RecalculationInterval ?? TimeSpan.Zero,
-                    TimerPeriod = defaultSettings?.TimerPeriod ?? TimeSpan.FromSeconds(5)
+                    OrdersProcessorPeriod = defaultSettings?.OrdersProcessorPeriod ?? TimeSpan.FromSeconds(5),
+                    PriceGeneratorPeriod = defaultSettings?.PriceGeneratorPeriod ?? TimeSpan.FromMilliseconds(500)
                 };
             }
+
+            if (_defaultSettings.PriceGeneratorPeriod == TimeSpan.Zero)
+                _defaultSettings.PriceGeneratorPeriod = TimeSpan.FromMilliseconds(500);
 
             return _defaultSettings;
         }

@@ -25,7 +25,7 @@ namespace Lykke.Service.EasyBuy.DomainServices
             _cache = new InMemoryCache<Instrument>(instrument => instrument.AssetPair, false);
         }
 
-        public async Task<IReadOnlyCollection<Instrument>> GetAllAsync()
+        public async Task<IReadOnlyList<Instrument>> GetAllAsync()
         {
             var instruments = _cache.GetAll();
 
@@ -37,6 +37,15 @@ namespace Lykke.Service.EasyBuy.DomainServices
             _cache.Initialize(instruments);
 
             return instruments;
+        }
+
+        public async Task<IReadOnlyList<Instrument>> GetActiveAsync()
+        {
+            var allInstruments = await GetAllAsync();
+
+            var active = allInstruments.Where(x => x.State == InstrumentState.Active).ToList();
+
+            return active;
         }
 
         public async Task<Instrument> GetByAssetPairIdAsync(string assetPair)

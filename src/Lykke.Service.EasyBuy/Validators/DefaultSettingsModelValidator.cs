@@ -25,7 +25,7 @@ namespace Lykke.Service.EasyBuy.Validators
                 .Must((m, o) => o.HasValue && o.Value < m.PriceLifetime)
                 .WithMessage("Recalculation interval should be less than price lifetime.");
             
-            RuleFor(o => o.TimerPeriod)
+            RuleFor(o => o.OrdersProcessorPeriod)
                 .Must(o => o.HasValue)
                 .WithMessage("Timer period should be present.");
         }

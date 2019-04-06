@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Sdk;
@@ -12,22 +12,23 @@ namespace Lykke.Service.EasyBuy.Managers
     public class ShutdownManager : IShutdownManager
     {
         private readonly IEnumerable<OrderBookSubscriber> _orderBookSubscribers;
-        private readonly IPricesGenerator _pricesGenerator;
         private readonly IPricesPublisher _pricesPublisher;
         private readonly OrdersProcessorTimer _ordersProcessorTimer;
+        private readonly PricesGeneratorTimer _pricesGeneratorTimer;
 
         public ShutdownManager(
             IEnumerable<OrderBookSubscriber> orderBookSubscribers,
-            IPricesGenerator pricesGenerator,
-            OrdersProcessorTimer ordersProcessorTimer, IPricesPublisher pricesPublisher)
+            OrdersProcessorTimer ordersProcessorTimer,
+            PricesGeneratorTimer pricesGeneratorTimer,
+            IPricesPublisher pricesPublisher)
         {
             _orderBookSubscribers = orderBookSubscribers;
-            _pricesGenerator = pricesGenerator;
             _ordersProcessorTimer = ordersProcessorTimer;
+            _pricesGeneratorTimer = pricesGeneratorTimer;
             _pricesPublisher = pricesPublisher;
         }
         
-        public async Task StopAsync()
+        public Task StopAsync()
         {
             foreach (var subscriber in _orderBookSubscribers)
             {
@@ -36,9 +37,11 @@ namespace Lykke.Service.EasyBuy.Managers
             
             _ordersProcessorTimer.Stop();
 
+            _pricesGeneratorTimer.Stop();
+
             _pricesPublisher.Stop();
 
-            await _pricesGenerator.StopAll();
+            return Task.CompletedTask;
         }
     }
 }

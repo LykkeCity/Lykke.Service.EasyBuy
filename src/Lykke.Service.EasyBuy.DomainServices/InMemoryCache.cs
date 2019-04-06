@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,7 +19,7 @@ namespace Lykke.Service.EasyBuy.DomainServices
             Initialized = initialized;
         }
 
-        public IReadOnlyCollection<T> GetAll()
+        public IReadOnlyList<T> GetAll()
         {
             lock (_sync)
             {
@@ -49,7 +49,7 @@ namespace Lykke.Service.EasyBuy.DomainServices
             }
         }
 
-        public void Set(IReadOnlyCollection<T> items)
+        public void Set(IReadOnlyList<T> items)
         {
             if (!Initialized)
                 return;
@@ -61,7 +61,7 @@ namespace Lykke.Service.EasyBuy.DomainServices
             }
         }
 
-        public void Initialize(IReadOnlyCollection<T> items)
+        public void Initialize(IReadOnlyList<T> items)
         {
             if (Initialized)
                 return;

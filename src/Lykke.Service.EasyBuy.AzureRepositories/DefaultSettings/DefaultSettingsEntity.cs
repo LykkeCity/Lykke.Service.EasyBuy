@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using JetBrains.Annotations;
 using Lykke.AzureStorage.Tables;
 using Lykke.AzureStorage.Tables.Entity.Annotation;
@@ -28,6 +28,8 @@ namespace Lykke.Service.EasyBuy.AzureRepositories.DefaultSettings
 
         public TimeSpan? PriceLifetime { set; get; }
 
-        public TimeSpan? TimerPeriod { set; get; }
+        public TimeSpan? OrdersProcessorPeriod { set; get; }
+
+        public TimeSpan? PriceGeneratorPeriod { set; get; }
     }
 }

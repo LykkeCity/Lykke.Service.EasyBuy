@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Lykke.Service.EasyBuy.Domain
 {
@@ -12,6 +12,8 @@ namespace Lykke.Service.EasyBuy.Domain
         
         public TimeSpan PriceLifetime { set; get; }
         
-        public TimeSpan TimerPeriod { set; get; }
+        public TimeSpan OrdersProcessorPeriod { set; get; }
+
+        public TimeSpan PriceGeneratorPeriod { set; get; }
     }
 }

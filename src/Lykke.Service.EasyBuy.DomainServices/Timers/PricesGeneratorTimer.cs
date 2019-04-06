@@ -8,32 +8,32 @@ using Lykke.Service.EasyBuy.Domain.Services;
 namespace Lykke.Service.EasyBuy.DomainServices.Timers
 {
     [UsedImplicitly]
-    public class OrdersProcessorTimer : Timer
+    public class PricesGeneratorTimer : Timer
     {
         private readonly ISettingsService _settingsService;
-        private readonly IOrdersService _ordersService;
+        private readonly IPricesGenerator _pricesGenerator;
         
-        public OrdersProcessorTimer(
+        public PricesGeneratorTimer(
             ISettingsService settingsService,
-            IOrdersService ordersService,
+            IPricesGenerator pricesGenerator,
             ILogFactory logFactory)
         {
             _settingsService = settingsService;
-            _ordersService = ordersService;
+            _pricesGenerator = pricesGenerator;
 
             Log = logFactory.CreateLog(this);
         }
         
         protected override Task OnExecuteAsync(CancellationToken cancellation)
         {
-            return _ordersService.ProcessPendingAsync();
+            return _pricesGenerator.TryExecuteAsync(cancellation);
         }
 
         protected override async Task<TimeSpan> GetDelayAsync()
         {
             var defaultSettings = await _settingsService.GetDefaultSettingsAsync();
 
-            return defaultSettings.OrdersProcessorPeriod;
+            return defaultSettings.PriceGeneratorPeriod;
         }
     }
 }

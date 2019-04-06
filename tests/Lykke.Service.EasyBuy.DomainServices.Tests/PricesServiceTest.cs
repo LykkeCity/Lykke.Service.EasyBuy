@@ -151,7 +151,7 @@ namespace Lykke.Service.EasyBuy.DomainServices.Tests
                     OverlapTime = TimeSpan.Zero,
                     PriceLifetime = TimeSpan.FromSeconds(20),
                     RecalculationInterval = TimeSpan.Zero,
-                    TimerPeriod = TimeSpan.FromSeconds(5)
+                    OrdersProcessorPeriod = TimeSpan.FromSeconds(5)
                 }));
         }
 

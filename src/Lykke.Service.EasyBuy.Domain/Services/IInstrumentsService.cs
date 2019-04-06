@@ -5,7 +5,7 @@ namespace Lykke.Service.EasyBuy.Domain.Services
 {
     public interface IInstrumentsService
     {
-        Task<IReadOnlyCollection<Instrument>> GetAllAsync();
+        Task<IReadOnlyList<Instrument>> GetAllAsync();
 
         Task<Instrument> GetByAssetPairIdAsync(string assetPair);
 
