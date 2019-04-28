@@ -1,8 +1,5 @@
 using System;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Lykke.Service.EasyBuy.Domain;
-using Lykke.Service.EasyBuy.Domain.Repositories;
 using Lykke.Service.EasyBuy.Domain.Services;
 
 namespace Lykke.Service.EasyBuy.DomainServices
@@ -12,56 +9,31 @@ namespace Lykke.Service.EasyBuy.DomainServices
     {
         private readonly string _instanceName;
         private readonly string _walletId;
+        private readonly TimeSpan _recalculationInterval;
+        private readonly TimeSpan _orderExecutionInterval;
 
-        private DefaultSetting _defaultSettings;
-
-        private readonly IDefaultSettingsRepository _settingsRepository;
-        
         public SettingsService(
             string instanceName,
             string walletId,
-            IDefaultSettingsRepository settingsRepository)
+            TimeSpan recalculationInterval,
+            TimeSpan orderExecutionInterval)
         {
             _instanceName = instanceName;
             _walletId = walletId;
-            _defaultSettings = null;
-            _settingsRepository = settingsRepository;
-        }
-        
-        public Task<string> GetServiceInstanceNameAsync()
-        {
-            return Task.FromResult(_instanceName);
+            _recalculationInterval = recalculationInterval;
+            _orderExecutionInterval = orderExecutionInterval;
         }
 
-        public Task<string> GetWalletIdAsync()
-        {
-            return Task.FromResult(_walletId);
-        }
+        public string GetInstanceName()
+            => _instanceName;
 
-        public async Task<DefaultSetting> GetDefaultSettingsAsync()
-        {
-            if (_defaultSettings == null)
-            {
-                var defaultSettings = await _settingsRepository.GetAsync();
+        public string GetWalletId()
+            => _walletId;
 
-                _defaultSettings = new DefaultSetting
-                {
-                    Markup = defaultSettings?.Markup ?? 0.01m,
-                    OverlapTime = defaultSettings?.OverlapTime ?? TimeSpan.Zero,
-                    PriceLifetime = defaultSettings?.PriceLifetime ?? TimeSpan.FromSeconds(20),
-                    RecalculationInterval = defaultSettings?.RecalculationInterval ?? TimeSpan.Zero,
-                    TimerPeriod = defaultSettings?.TimerPeriod ?? TimeSpan.FromSeconds(5)
-                };
-            }
+        public TimeSpan GetRecalculationInterval()
+            => _recalculationInterval;
 
-            return _defaultSettings;
-        }
-
-        public async Task UpdateDefaultSettingsAsync(DefaultSetting defaultSetting)
-        {
-            _defaultSettings = defaultSetting;
-
-            await _settingsRepository.CreateOrUpdateAsync(defaultSetting);
-        }
+        public TimeSpan GetOrderExecutionInterval()
+            => _orderExecutionInterval;
     }
 }

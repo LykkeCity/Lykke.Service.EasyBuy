@@ -3,7 +3,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Sdk;
 using Lykke.Service.EasyBuy.Domain.Services;
-using Lykke.Service.EasyBuy.DomainServices.Timers;
+using Lykke.Service.EasyBuy.Rabbit.Publishers;
+using Lykke.Service.EasyBuy.Timers;
 using Lykke.Service.EasyBuy.Rabbit.Subscribers;
 
 namespace Lykke.Service.EasyBuy.Managers
@@ -12,34 +13,37 @@ namespace Lykke.Service.EasyBuy.Managers
     public class StartupManager : IStartupManager
     {
         private readonly IEnumerable<OrderBookSubscriber> _orderBookSubscribers;
-        private readonly IPricesGenerator _pricesGenerator;
-        private readonly IPricesPublisher _pricesPublisher;
-        private readonly OrdersProcessorTimer _ordersProcessorTimer;
+        private readonly PricesPublisher _pricesPublisher;
+        private readonly IPriceService _priceService;
+        private readonly OrdersTimer _ordersTimer;
+        private readonly PricesTimer _pricesTimer;
 
         public StartupManager(
             IEnumerable<OrderBookSubscriber> orderBookSubscribers,
-            IPricesGenerator pricesGenerator,
-            OrdersProcessorTimer ordersProcessorTimer,
-            IPricesPublisher pricesPublisher)
+            OrdersTimer ordersTimer,
+            PricesTimer pricesTimer,
+            PricesPublisher pricesPublisher,
+            IPriceService priceService)
         {
             _orderBookSubscribers = orderBookSubscribers;
-            _pricesGenerator = pricesGenerator;
-            _ordersProcessorTimer = ordersProcessorTimer;
+            _ordersTimer = ordersTimer;
+            _pricesTimer = pricesTimer;
             _pricesPublisher = pricesPublisher;
+            _priceService = priceService;
         }
-        
+
         public async Task StartAsync()
         {
-            foreach (var subscriber in _orderBookSubscribers)
-            {
-                subscriber.Start();
-            }
+            await _priceService.InitializeAsync();
             
-            _ordersProcessorTimer.Start();
+            foreach (OrderBookSubscriber orderBookSubscriber in _orderBookSubscribers)
+                orderBookSubscriber.Start();
 
             _pricesPublisher.Start();
+            
+            _ordersTimer.Start();
 
-            await _pricesGenerator.StartActives();
+            _pricesTimer.Start();
         }
     }
 }

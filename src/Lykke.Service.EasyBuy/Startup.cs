@@ -28,7 +28,7 @@ namespace Lykke.Service.EasyBuy
                 {
                     Mapper.Initialize(cfg =>
                     {
-                        cfg.AddProfiles(typeof(AzureRepositories.AutoMapperProfile));
+                        cfg.AddProfiles(typeof(PostgresRepositories.AutoMapperProfile));
                         cfg.AddProfiles(typeof(AutoMapperProfile));
                     });
 

@@ -1,7 +1,13 @@
 using AutoMapper;
 using JetBrains.Annotations;
-using Lykke.Service.EasyBuy.Client.Models;
-using Lykke.Service.EasyBuy.Domain;
+using Lykke.Service.EasyBuy.Client.Models.Balances;
+using Lykke.Service.EasyBuy.Client.Models.Instruments;
+using Lykke.Service.EasyBuy.Client.Models.Orders;
+using Lykke.Service.EasyBuy.Client.Models.Prices;
+using Lykke.Service.EasyBuy.Domain.Entities.Balances;
+using Lykke.Service.EasyBuy.Domain.Entities.Instruments;
+using Lykke.Service.EasyBuy.Domain.Entities.Orders;
+using Lykke.Service.EasyBuy.Domain.Entities.Prices;
 
 namespace Lykke.Service.EasyBuy
 {
@@ -10,19 +16,16 @@ namespace Lykke.Service.EasyBuy
     {
         public AutoMapperProfile()
         {
+            CreateMap<Balance, BalanceModel>(MemberList.Source);
+
             CreateMap<Instrument, InstrumentModel>(MemberList.Source);
             CreateMap<InstrumentModel, Instrument>(MemberList.Destination);
-            
-            CreateMap<Order, OrderModel>(MemberList.Destination)
-                .ForMember(o => o.Volume, opt => opt.MapFrom(x => x.BaseVolume));
-            
-            CreateMap<Price, PriceModel>(MemberList.Destination);
 
-            CreateMap<Common.ExchangeAdapter.Contracts.OrderBookItem, OrderBookLimitOrder>(MemberList.Destination);
-            CreateMap<Lykke.Common.ExchangeAdapter.Contracts.OrderBook, OrderBook>(MemberList.Destination)
-                .ForMember(o => o.AssetPair, opt => opt.MapFrom(x => x.Asset))
-                .ForMember(o => o.SellLimitOrders, opt => opt.MapFrom(x => x.Asks))
-                .ForMember(o => o.BuyLimitOrders, opt => opt.MapFrom(x => x.Bids));
+            CreateMap<Order, OrderModel>(MemberList.Source);
+
+            CreateMap<Price, PriceModel>(MemberList.Source);
+
+            CreateMap<Price, Contract.Price>(MemberList.Source);
         }
     }
 }

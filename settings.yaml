@@ -4,7 +4,13 @@ EasyBuyService:
 
   WalletId:
     settings-key: EasyBuyService-WalletId
+    
+  RecalculationInterval:
+    settings-key: EasyBuyService-RecalculationInterval
   
+  OrderExecutionInterval:
+    settings-key: EasyBuyService-OrderExecutionInterval
+    
   Db:
     DataConnectionString:
       settings-key: EasyBuyService-DataConnectionString
@@ -16,34 +22,28 @@ EasyBuyService:
       types:
         - AzureTableStorage
 
-  PricesPublish:
-    ConnectionString:
-      settings-key: RawPriceRabbitMq
-      types:
-        - RabbitMq
-    ExchangeName:
-      settings-key: EasyBuyService-PricesPublishExchangeName
-  
-  OrderBookSource:
-    ConnectionString:
-      settings-key: RawPriceRabbitMq
-      types:
-        - RabbitMq
-    QueueSuffix:
-      settings-key: EasyBuyService-OrderBookSourceQueueSuffix
-    Exchanges:
-      settings-key: EasyBuyService-OrderBookSourceExchanges
-      types:
-        - JsonArray
+  Rabbit:
+    Subscribers:
+      OrderBooks:
+        ConnectionString:
+          settings-key: RawPriceRabbitMq
+          types:
+            - RabbitMq
+        Exchanges:
+          settings-key: EasyBuyService-Rabbit-Subscribers-OrderBooks-Exchanges
+          types:
+            - JsonArray
+        QueueSuffix:
+          settings-key: EasyBuyService-Rabbit-Subscribers-OrderBooks-QueueSuffix
 
-SlackNotifications:
-  AzureQueue:
-    ConnectionString:
-      settings-key: SlackNotificationsConnString
-      types:
-        - AzureTableStorage
-    QueueName:
-      settings-key: SlackQueueName
+    Publishers:                
+      Prices:
+        ConnectionString:
+          settings-key: RawPriceRabbitMq
+          types:
+            - RabbitMq
+        Exchange:
+          settings-key: EasyBuyService-Rabbit-Publishers-Prices-Exchange
 
 AssetsServiceClient:
   ServiceUrl:
@@ -57,9 +57,14 @@ ExchangeOperationsServiceClient:
   ServiceUrl:
     settings-key: ExchangeOperationsServiceUrl
 
-ClientAccountServiceClient:
-  ServiceUrl:
-    settings-key: ClientAccountServiceUrl
+SlackNotifications:
+  AzureQueue:
+    ConnectionString:
+      settings-key: SlackNotificationsConnString
+      types:
+        - AzureTableStorage
+    QueueName:
+      settings-key: SlackQueueName
 
 MonitoringServiceClient:
   MonitoringServiceUrl:

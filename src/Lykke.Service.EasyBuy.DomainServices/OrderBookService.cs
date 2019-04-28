@@ -1,96 +1,50 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using JetBrains.Annotations;
-using Lykke.Service.EasyBuy.Domain;
+using Lykke.Service.EasyBuy.Domain.Entities.OrderBooks;
 using Lykke.Service.EasyBuy.Domain.Services;
+using Lykke.Service.EasyBuy.DomainServices.Cache;
 
 namespace Lykke.Service.EasyBuy.DomainServices
 {
     [UsedImplicitly]
     public class OrderBookService : IOrderBookService
     {
-        private readonly object _sync = new object();
+        private readonly InMemoryCache<OrderBook> _cache;
 
-        private readonly Dictionary<string, Dictionary<string, OrderBook>> _orderBooks =
-            new Dictionary<string, Dictionary<string, OrderBook>>();
-
+        public OrderBookService()
+        {
+            _cache = new InMemoryCache<OrderBook>(GetKey, true);
+        }
 
         public IReadOnlyList<string> GetExistingExchanges()
         {
-            lock (_sync)
-            {
-                return Mapper.Map<IReadOnlyList<string>>(_orderBooks.Select(x => x.Key));
-            }
+            return _cache.GetAll()
+                .Select(o => o.Exchange)
+                .Distinct()
+                .OrderBy(o => o)
+                .ToList();
         }
 
-        public Task HandleAsync(string exchange, OrderBook orderBook)
+        public Task HandleAsync(OrderBook orderBook)
         {
-            lock (_sync)
-            {
-                if (!_orderBooks.TryGetValue(exchange, out var orderBooksFromExchange))
-                {
-                    InitiateExchange(exchange);
-                }
+            // TODO: Validate order book
 
-                orderBooksFromExchange = _orderBooks[exchange];
-                
-                if (!orderBooksFromExchange.TryGetValue(orderBook.AssetPair, out var internalOrderBook))
-                {
-                    InitiateOrderBook(exchange, orderBook.AssetPair);
-                }
-
-                internalOrderBook = orderBooksFromExchange[orderBook.AssetPair];
-
-                internalOrderBook.SellLimitOrders = new List<OrderBookLimitOrder>();
-                internalOrderBook.BuyLimitOrders = new List<OrderBookLimitOrder>();
-
-                internalOrderBook.SellLimitOrders.AddRange(orderBook.SellLimitOrders);
-                internalOrderBook.BuyLimitOrders.AddRange(orderBook.BuyLimitOrders);
-
-                internalOrderBook.Timestamp = DateTime.UtcNow;
-            }
+            _cache.Set(orderBook);
 
             return Task.CompletedTask;
         }
 
-        public OrderBook GetByAssetPairId(string exchange, string assetPairId)
+        public OrderBook GetByAssetPair(string exchange, string assetPair)
         {
-            lock (_sync)
-            {
-                if (!_orderBooks.TryGetValue(exchange, out var orderBooksFromExchange))
-                {
-                    InitiateExchange(exchange);
-                }
-
-                orderBooksFromExchange = _orderBooks[exchange];
-
-                if (!orderBooksFromExchange.TryGetValue(assetPairId, out var internalOrderBook))
-                {
-                    InitiateOrderBook(exchange, assetPairId);
-                }
-
-                return orderBooksFromExchange[assetPairId];
-            }
+            return _cache.Get(GetKey(exchange, assetPair));
         }
-        
-        private void InitiateExchange(string exchange)
-        {
-            _orderBooks[exchange] = new Dictionary<string, OrderBook>();
-        }
-        
-        private void InitiateOrderBook(string exchange, string assetPair)
-        {
-            var orderBook = new OrderBook()
-            {
-                AssetPair = assetPair,
-                SellLimitOrders = new List<OrderBookLimitOrder>(),
-                BuyLimitOrders = new List<OrderBookLimitOrder>()
-            };
 
-            _orderBooks[exchange][assetPair] = orderBook;
-        }
+        private static string GetKey(OrderBook orderBook)
+            => GetKey(orderBook.Exchange, orderBook.AssetPair);
+
+        private static string GetKey(string exchange, string assetPair)
+            => $"{exchange}_{assetPair}";
     }
 }

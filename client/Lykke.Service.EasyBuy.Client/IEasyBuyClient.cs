@@ -13,32 +13,27 @@ namespace Lykke.Service.EasyBuy.Client
         /// Provides methods to request balance.
         /// </summary>
         IBalancesApi BalancesApi { get; }
-        
+
         /// <summary>
         /// Provides methods to work with instruments.
         /// </summary>
         IInstrumentsApi InstrumentsApi { get; }
-        
+
         /// <summary>
         /// Provides methods to work with orders.
         /// </summary>
         IOrdersApi OrdersApi { get; }
-        
+
         /// <summary>
         /// Provides method to work with prices.
         /// </summary>
         IPricesApi PricesApi { get; }
-        
+
         /// <summary>
         /// Provides methods to work with EasyBuy settings.
         /// </summary>
         ISettingsApi SettingsApi { get; }
-        
-        /// <summary>
-        /// Provides methods to work with executed trades.
-        /// </summary>
-        ITradesApi TradesApi { get; }
-        
+
         /// <summary>
         /// Provides methods to work with exchanges.
         /// </summary>

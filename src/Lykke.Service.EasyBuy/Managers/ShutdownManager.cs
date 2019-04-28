@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Sdk;
-using Lykke.Service.EasyBuy.Domain.Services;
-using Lykke.Service.EasyBuy.DomainServices.Timers;
+using Lykke.Service.EasyBuy.Rabbit.Publishers;
+using Lykke.Service.EasyBuy.Timers;
 using Lykke.Service.EasyBuy.Rabbit.Subscribers;
 
 namespace Lykke.Service.EasyBuy.Managers
@@ -12,33 +12,34 @@ namespace Lykke.Service.EasyBuy.Managers
     public class ShutdownManager : IShutdownManager
     {
         private readonly IEnumerable<OrderBookSubscriber> _orderBookSubscribers;
-        private readonly IPricesGenerator _pricesGenerator;
-        private readonly IPricesPublisher _pricesPublisher;
-        private readonly OrdersProcessorTimer _ordersProcessorTimer;
+        private readonly PricesPublisher _pricesPublisher;
+        private readonly OrdersTimer _ordersTimer;
+        private readonly PricesTimer _pricesTimer;
 
         public ShutdownManager(
             IEnumerable<OrderBookSubscriber> orderBookSubscribers,
-            IPricesGenerator pricesGenerator,
-            OrdersProcessorTimer ordersProcessorTimer, IPricesPublisher pricesPublisher)
+            OrdersTimer ordersTimer,
+            PricesTimer pricesTimer,
+            PricesPublisher pricesPublisher)
         {
             _orderBookSubscribers = orderBookSubscribers;
-            _pricesGenerator = pricesGenerator;
-            _ordersProcessorTimer = ordersProcessorTimer;
+            _ordersTimer = ordersTimer;
+            _pricesTimer = pricesTimer;
             _pricesPublisher = pricesPublisher;
         }
-        
-        public async Task StopAsync()
+
+        public Task StopAsync()
         {
-            foreach (var subscriber in _orderBookSubscribers)
-            {
-                subscriber.Stop();
-            }
-            
-            _ordersProcessorTimer.Stop();
+            _pricesTimer.Stop();
+
+            _ordersTimer.Stop();
 
             _pricesPublisher.Stop();
 
-            await _pricesGenerator.StopAll();
+            foreach (OrderBookSubscriber orderBookSubscriber in _orderBookSubscribers)
+                orderBookSubscriber.Stop();
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -22,8 +22,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Service.EasyBuy.Domai
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Repositories", "2. Repositories", "{BF745453-B940-470E-81BC-43FB67703D4E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Service.EasyBuy.AzureRepositories", "src\Lykke.Service.EasyBuy.AzureRepositories\Lykke.Service.EasyBuy.AzureRepositories.csproj", "{4BE49E02-AAAD-460B-8D00-57F412A3D181}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Contract", "3. Contract", "{14B5AF15-F733-4EF0-9FB9-3E61C4C83ADD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Service.EasyBuy.Contract", "contract\Lykke.Service.EasyBuy.Contract\Lykke.Service.EasyBuy.Contract.csproj", "{931B95E3-AF9F-4A4C-9C6A-5959C2FBCAC9}"
@@ -38,9 +36,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Service.EasyBuy.Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Service.EasyBuy", "src\Lykke.Service.EasyBuy\Lykke.Service.EasyBuy.csproj", "{E414FDB9-FEEA-4CD0-9BBA-D1541601DF29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lykke.Service.EasyBuy.AzureRepositories.Tests", "tests\Lykke.Service.EasyBuy.AzureRepositories.Tests\Lykke.Service.EasyBuy.AzureRepositories.Tests.csproj", "{F68DCEE3-8018-48D8-B4BF-6E3BB30031E9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lykke.Service.EasyBuy.DomainServices.Tests", "tests\Lykke.Service.EasyBuy.DomainServices.Tests\Lykke.Service.EasyBuy.DomainServices.Tests.csproj", "{C1BC0125-4A67-4E97-98B5-612034F5A61B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lykke.Service.EasyBuy.Domain.Tests", "tests\Lykke.Service.EasyBuy.Domain.Tests\Lykke.Service.EasyBuy.Domain.Tests.csproj", "{EC0D033E-E8E5-455E-9206-38BF29DF0DE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lykke.Service.EasyBuy.PostgresRepositories", "src\Lykke.Service.EasyBuy.PostgresRepositories\Lykke.Service.EasyBuy.PostgresRepositories.csproj", "{CD6273ED-C58C-43CE-8874-D2EC6CE9C80D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lykke.Service.EasyBuy.PostgresRepositories.Tests", "tests\Lykke.Service.EasyBuy.PostgresRepositories.Tests\Lykke.Service.EasyBuy.PostgresRepositories.Tests.csproj", "{9357E004-3A79-403F-B2E6-F8077E929C67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -64,10 +66,6 @@ Global
 		{F5B2F6B8-A8CC-4612-8F1D-C063EB8C8955}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5B2F6B8-A8CC-4612-8F1D-C063EB8C8955}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5B2F6B8-A8CC-4612-8F1D-C063EB8C8955}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4BE49E02-AAAD-460B-8D00-57F412A3D181}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4BE49E02-AAAD-460B-8D00-57F412A3D181}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4BE49E02-AAAD-460B-8D00-57F412A3D181}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4BE49E02-AAAD-460B-8D00-57F412A3D181}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D5F52EC-2A27-4045-81ED-72355E2A6325}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2D5F52EC-2A27-4045-81ED-72355E2A6325}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D5F52EC-2A27-4045-81ED-72355E2A6325}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -76,14 +74,22 @@ Global
 		{A61FFDEE-5725-4650-A788-6E55EE5EFD5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A61FFDEE-5725-4650-A788-6E55EE5EFD5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A61FFDEE-5725-4650-A788-6E55EE5EFD5B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F68DCEE3-8018-48D8-B4BF-6E3BB30031E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F68DCEE3-8018-48D8-B4BF-6E3BB30031E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F68DCEE3-8018-48D8-B4BF-6E3BB30031E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F68DCEE3-8018-48D8-B4BF-6E3BB30031E9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C1BC0125-4A67-4E97-98B5-612034F5A61B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C1BC0125-4A67-4E97-98B5-612034F5A61B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1BC0125-4A67-4E97-98B5-612034F5A61B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1BC0125-4A67-4E97-98B5-612034F5A61B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC0D033E-E8E5-455E-9206-38BF29DF0DE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC0D033E-E8E5-455E-9206-38BF29DF0DE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC0D033E-E8E5-455E-9206-38BF29DF0DE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC0D033E-E8E5-455E-9206-38BF29DF0DE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD6273ED-C58C-43CE-8874-D2EC6CE9C80D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD6273ED-C58C-43CE-8874-D2EC6CE9C80D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD6273ED-C58C-43CE-8874-D2EC6CE9C80D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD6273ED-C58C-43CE-8874-D2EC6CE9C80D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9357E004-3A79-403F-B2E6-F8077E929C67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9357E004-3A79-403F-B2E6-F8077E929C67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9357E004-3A79-403F-B2E6-F8077E929C67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9357E004-3A79-403F-B2E6-F8077E929C67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,11 +98,12 @@ Global
 		{931B95E3-AF9F-4A4C-9C6A-5959C2FBCAC9} = {14B5AF15-F733-4EF0-9FB9-3E61C4C83ADD}
 		{3C300C31-97D3-41E8-A627-C53491BDA28B} = {C9A2CFDE-EA32-4946-B679-7CE6EFA816B8}
 		{F5B2F6B8-A8CC-4612-8F1D-C063EB8C8955} = {CC2067D7-1971-47BB-B491-5649EA3C18B2}
-		{4BE49E02-AAAD-460B-8D00-57F412A3D181} = {BF745453-B940-470E-81BC-43FB67703D4E}
 		{2D5F52EC-2A27-4045-81ED-72355E2A6325} = {CC2067D7-1971-47BB-B491-5649EA3C18B2}
 		{A61FFDEE-5725-4650-A788-6E55EE5EFD5B} = {8F9036B1-5106-4C69-B2D2-B78EE52687A0}
-		{F68DCEE3-8018-48D8-B4BF-6E3BB30031E9} = {8F9036B1-5106-4C69-B2D2-B78EE52687A0}
 		{C1BC0125-4A67-4E97-98B5-612034F5A61B} = {8F9036B1-5106-4C69-B2D2-B78EE52687A0}
+		{EC0D033E-E8E5-455E-9206-38BF29DF0DE7} = {8F9036B1-5106-4C69-B2D2-B78EE52687A0}
+		{CD6273ED-C58C-43CE-8874-D2EC6CE9C80D} = {BF745453-B940-470E-81BC-43FB67703D4E}
+		{9357E004-3A79-403F-B2E6-F8077E929C67} = {8F9036B1-5106-4C69-B2D2-B78EE52687A0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EB6C0EF4-AA6A-444D-8603-3669F73A58BC}

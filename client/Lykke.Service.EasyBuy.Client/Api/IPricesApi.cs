@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Lykke.Service.EasyBuy.Client.Models;
+using Lykke.Common.ApiLibrary.Exceptions;
+using Lykke.Service.EasyBuy.Client.Models.Prices;
 using Refit;
 
 namespace Lykke.Service.EasyBuy.Client.Api
@@ -13,19 +14,19 @@ namespace Lykke.Service.EasyBuy.Client.Api
     public interface IPricesApi
     {
         /// <summary>
-        /// Used to return calculated price by client and price ids.
+        /// Returns a price by identifier.
         /// </summary>
-        /// <param name="priceId">Price Id.</param>
-        /// <returns></returns>
-        [Get("/api/prices")]
-        Task<PriceModel> GetPriceAsync(string priceId);
-        
+        /// <param name="priceId">The identifier of price.</param>
+        /// <returns>The price.</returns>
+        /// <exception cref="ClientApiException">If price does not exist.</exception>
+        [Get("/api/prices/{priceId}")]
+        Task<PriceModel> GetByIdAsync(string priceId);
+
         /// <summary>
-        /// Used to return all actual prices for active instruments by type.
+        /// Returns a collection of active prices.
         /// </summary>
-        /// <param name="type">Types of prices.</param>
-        /// <returns></returns>
-        [Get("/api/prices/active")]
-        Task<IReadOnlyList<PriceModel>> GetActualPricesAsync(OrderType type);
+        /// <returns>A collection of prices.</returns>
+        [Get("/api/prices")]
+        Task<IReadOnlyList<PriceModel>> GetAllAsync();
     }
 }

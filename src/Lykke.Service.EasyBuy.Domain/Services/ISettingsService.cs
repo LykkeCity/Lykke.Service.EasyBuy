@@ -1,12 +1,15 @@
-using System.Threading.Tasks;
+using System;
 
 namespace Lykke.Service.EasyBuy.Domain.Services
 {
     public interface ISettingsService
     {
-        Task<string> GetServiceInstanceNameAsync();
-        Task<string> GetWalletIdAsync();
-        Task<DefaultSetting> GetDefaultSettingsAsync();
-        Task UpdateDefaultSettingsAsync(DefaultSetting defaultSettings);
+        string GetInstanceName();
+
+        string GetWalletId();
+
+        TimeSpan GetRecalculationInterval();
+
+        TimeSpan GetOrderExecutionInterval();
     }
 }

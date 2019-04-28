@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
 using JetBrains.Annotations;
-using Lykke.Common.Log;
+using Lykke.Service.Balances.AutorestClient.Models;
 using Lykke.Service.Balances.Client;
-using Lykke.Service.EasyBuy.Domain;
+using Lykke.Service.Balances.Client.ResponseModels;
+using Lykke.Service.EasyBuy.Domain.Entities.Balances;
 using Lykke.Service.EasyBuy.Domain.Exceptions;
 using Lykke.Service.EasyBuy.Domain.Services;
 
@@ -17,34 +17,47 @@ namespace Lykke.Service.EasyBuy.DomainServices
     {
         private readonly IBalancesClient _balancesClient;
         private readonly ISettingsService _settingsService;
-        private readonly ILog _log;
 
         public BalanceService(
             IBalancesClient balancesClient,
-            ISettingsService settingsService,
-            ILogFactory logFactory)
+            ISettingsService settingsService)
         {
             _balancesClient = balancesClient;
             _settingsService = settingsService;
-            _log = logFactory.CreateLog(this);
         }
 
-        public async Task<IReadOnlyList<Balance>> GetAsync()
+        public async Task<IReadOnlyList<Balance>> GetAllAsync()
         {
             try
             {
-                var balance = await _balancesClient.GetClientBalances(await _settingsService.GetWalletIdAsync());
+                string walletId = _settingsService.GetWalletId();
 
-                return balance.Select(x => new Balance
-                {
-                    AssetId = x.AssetId,
-                    Available = x.Balance,
-                    Reserved = x.Reserved
-                }).ToArray();
+                IEnumerable<ClientBalanceResponseModel> balance = await _balancesClient.GetClientBalances(walletId);
+
+                return balance.Select(o => new Balance(o.AssetId, o.Balance, o.Reserved)).ToList();
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                throw new FailedOperationException("Failed to retrieve balances.", e);
+                throw new FailedOperationException("An error occurred while retrieving balances.", exception);
+            }
+        }
+
+        public async Task<Balance> GetByAssetAsync(string asset)
+        {
+            try
+            {
+                string walletId = _settingsService.GetWalletId();
+
+                ClientBalanceModel balance =
+                    await _balancesClient.GetClientBalanceByAssetId(new ClientBalanceByAssetIdModel(asset, walletId));
+
+                return balance == null
+                    ? new Balance(asset)
+                    : new Balance(asset, balance.Balance, balance.Reserved);
+            }
+            catch (Exception exception)
+            {
+                throw new FailedOperationException("An error occurred while retrieving balance.", exception);
             }
         }
     }

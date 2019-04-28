@@ -5,8 +5,8 @@ using AutoMapper;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Exceptions;
 using Lykke.Service.EasyBuy.Client.Api;
-using Lykke.Service.EasyBuy.Client.Models;
-using Lykke.Service.EasyBuy.Domain;
+using Lykke.Service.EasyBuy.Client.Models.Instruments;
+using Lykke.Service.EasyBuy.Domain.Entities.Instruments;
 using Lykke.Service.EasyBuy.Domain.Exceptions;
 using Lykke.Service.EasyBuy.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -16,21 +16,20 @@ namespace Lykke.Service.EasyBuy.Controllers
     [Route("/api/[controller]")]
     public class InstrumentsController : Controller, IInstrumentsApi
     {
-        private readonly IInstrumentsService _instrumentsService;
+        private readonly IInstrumentService _instrumentService;
 
-        public InstrumentsController(
-            IInstrumentsService instrumentsService)
+        public InstrumentsController(IInstrumentService instrumentService)
         {
-            _instrumentsService = instrumentsService;
+            _instrumentService = instrumentService;
         }
 
         /// <inheritdoc/>
         /// <response code="200">A collection of instruments.</response>
         [HttpGet]
-        [ProducesResponseType(typeof(IReadOnlyCollection<InstrumentModel>), (int) HttpStatusCode.OK)]
-        public async Task<IReadOnlyCollection<InstrumentModel>> GetAllAsync()
+        [ProducesResponseType(typeof(IReadOnlyList<InstrumentModel>), (int) HttpStatusCode.OK)]
+        public async Task<IReadOnlyList<InstrumentModel>> GetAllAsync()
         {
-            var instruments = await _instrumentsService.GetAllAsync();
+            IReadOnlyList<Instrument> instruments = await _instrumentService.GetAllAsync();
 
             return Mapper.Map<List<InstrumentModel>>(instruments);
         }
@@ -41,20 +40,16 @@ namespace Lykke.Service.EasyBuy.Controllers
         [HttpGet("{assetPairId}")]
         [ProducesResponseType(typeof(InstrumentModel), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorResponse), (int) HttpStatusCode.NotFound)]
-        public async Task<InstrumentModel> GetByAssetPairIdAsync(string assetPairId)
+        public async Task<InstrumentModel> GetByIdAsync(string instrumentId)
         {
-            try
-            {
-                var instrument = await _instrumentsService.GetByAssetPairIdAsync(assetPairId);
+            Instrument instrument = await _instrumentService.GetByIdAsync(instrumentId);
 
-                return Mapper.Map<InstrumentModel>(instrument);
-            }
-            catch (EntityNotFoundException)
-            {
+            if (instrument == null)
                 throw new ValidationApiException(HttpStatusCode.NotFound, "Instrument does not exist.");
-            }
+
+            return Mapper.Map<InstrumentModel>(instrument);
         }
-        
+
         /// <inheritdoc/>
         /// <response code="204">The instrument successfully added.</response>
         /// <response code="400">The instrument already used.</response>
@@ -67,11 +62,11 @@ namespace Lykke.Service.EasyBuy.Controllers
             {
                 var instrument = Mapper.Map<Instrument>(model);
 
-                await _instrumentsService.AddAsync(instrument);
+                await _instrumentService.AddAsync(instrument);
             }
-            catch (FailedOperationException exception)
+            catch (EntityAlreadyExistsException)
             {
-                throw new ValidationApiException(HttpStatusCode.BadRequest, exception.Message);
+                throw new ValidationApiException(HttpStatusCode.BadRequest, "The instrument already exists");
             }
         }
 
@@ -87,9 +82,9 @@ namespace Lykke.Service.EasyBuy.Controllers
         {
             try
             {
-                var instrument = Mapper.Map<Instrument>(model);
+                var instrumentSettings = Mapper.Map<Instrument>(model);
 
-                await _instrumentsService.UpdateAsync(instrument);
+                await _instrumentService.UpdateAsync(instrumentSettings);
             }
             catch (EntityNotFoundException)
             {
@@ -105,14 +100,14 @@ namespace Lykke.Service.EasyBuy.Controllers
         /// <response code="204">The instrument successfully deleted.</response>
         /// <response code="400">An error occurred while deleting instrument.</response>
         /// <response code="404">Instrument does not exist.</response>
-        [HttpDelete("{assetPairId}")]
+        [HttpDelete("{instrumentId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ErrorResponse), (int) HttpStatusCode.NotFound)]
-        public async Task DeleteAsync(string assetPairId)
+        public async Task DeleteAsync(string instrumentId)
         {
             try
             {
-                await _instrumentsService.DeleteAsync(assetPairId);
+                await _instrumentService.DeleteAsync(instrumentId);
             }
             catch (EntityNotFoundException)
             {

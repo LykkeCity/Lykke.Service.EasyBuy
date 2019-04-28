@@ -1,47 +1,47 @@
 using System;
 using FluentValidation;
 using JetBrains.Annotations;
-using Lykke.Service.EasyBuy.Client.Models;
+using Lykke.Service.EasyBuy.Client.Models.Instruments;
 using Lykke.Service.EasyBuy.Domain.Services;
 
 namespace Lykke.Service.EasyBuy.Validators
 {
     [UsedImplicitly]
-    public class InstrumentModelValidator : AbstractValidator<InstrumentModel>
+    public class InstrumentSettingsModelValidator : AbstractValidator<InstrumentModel>
     {
-        public InstrumentModelValidator(ISettingsService settingsService)
+        public InstrumentSettingsModelValidator(ISettingsService settingsService)
         {
-            var defaultSettings = settingsService.GetDefaultSettingsAsync().GetAwaiter().GetResult();
-            
             RuleFor(o => o.AssetPair)
                 .NotEmpty()
                 .WithMessage("Asset pair required.");
-            
+
             RuleFor(o => o.Exchange)
                 .NotEmpty()
                 .WithMessage("Exchange required.");
-            
-            RuleFor(o => o.State)
-                .Must(o => o != InstrumentState.None)
-                .WithMessage("Instrument state required.");
-            
+
+            RuleFor(o => o.Lifetime)
+                .GreaterThan(TimeSpan.Zero)
+                .WithMessage("Lifetime should be greater than zero.");
+
             RuleFor(o => o.OverlapTime)
-                .Must(o => !o.HasValue || o.Value >= TimeSpan.Zero)
-                .WithMessage("Allowed overlap can not be negative.");
-            
+                .GreaterThanOrEqualTo(TimeSpan.Zero)
+                .WithMessage("Overlap time should be greater than or equal to zero.");
+
             RuleFor(o => o.Markup)
-                .Must(o => !o.HasValue || o.Value < 1m && o.Value > 0m)
-                .WithMessage("Markup has to be between 0 and 1 (non inclusive).");
+                .InclusiveBetween(0, 1)
+                .WithMessage("Markup should be between 0 and 1.");
 
-            RuleFor(o => o.Volume)
+            RuleFor(o => o.MinQuoteVolume)
                 .GreaterThan(0m)
-                .WithMessage("Volume has to be positive number.");
+                .WithMessage("Min volume should be greater than zero.");
 
-            RuleFor(o => o.RecalculationInterval)
-                .Must((model, b) =>
-                    ((!b.HasValue && defaultSettings.RecalculationInterval < (model.PriceLifetime ?? defaultSettings.PriceLifetime)) ||
-                    (b.HasValue && b.Value < (model.PriceLifetime ?? defaultSettings.PriceLifetime))))
-                .WithMessage("Invalid Recalculation Interval.");
+            RuleFor(o => o.MaxQuoteVolume)
+                .GreaterThan(0m)
+                .WithMessage("Max volume should be greater than zero.");
+
+            RuleFor(o => o.Status)
+                .NotEqual(InstrumentStatus.None)
+                .WithMessage("Instrument status required.");
         }
     }
 }

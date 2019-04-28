@@ -16,28 +16,24 @@ namespace Lykke.Service.EasyBuy.Client
             OrdersApi = httpClientGenerator.Generate<IOrdersApi>();
             PricesApi = httpClientGenerator.Generate<IPricesApi>();
             SettingsApi = httpClientGenerator.Generate<ISettingsApi>();
-            TradesApi = httpClientGenerator.Generate<ITradesApi>();
             ExchangesApi = httpClientGenerator.Generate<IExchangesApi>();
         }
 
         /// <inheritdoc />
         public IBalancesApi BalancesApi { get; }
-        
+
         /// <inheritdoc />
         public IInstrumentsApi InstrumentsApi { get; }
-        
+
         /// <inheritdoc />
         public IOrdersApi OrdersApi { get; }
-        
+
         /// <inheritdoc />
         public IPricesApi PricesApi { get; }
-        
+
         /// <inheritdoc />
         public ISettingsApi SettingsApi { get; }
-        
-        /// <inheritdoc />
-        public ITradesApi TradesApi { get; }
-        
+
         /// <inheritdoc />
         public IExchangesApi ExchangesApi { get; }
     }

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Lykke.Common.ApiLibrary.Exceptions;
 using Lykke.Service.EasyBuy.Client.Models;
+using Lykke.Service.EasyBuy.Client.Models.Orders;
 using Refit;
 
 namespace Lykke.Service.EasyBuy.Client.Api
@@ -12,36 +14,39 @@ namespace Lykke.Service.EasyBuy.Client.Api
     public interface IOrdersApi
     {
         /// <summary>
-        /// Used to create order.
+        /// Returns the order by identifier.
         /// </summary>
-        /// <returns>Order details.</returns>
-        [Post("/api/orders")]
-        Task<OrderModel> CreateOrderAsync(CreateOrderModel model);
+        /// <param name="orderId">The identifier of order.</param>
+        /// <returns>The order.</returns>
+        /// <exception cref="ClientApiException">If order does not exist.</exception>
+        [Get("/api/orders/{orderId}")]
+        Task<OrderModel> GetByIdAsync(string orderId);
 
         /// <summary>
-        /// Used to fetch existing order.
+        /// Returns orders.
         /// </summary>
-        /// <param name="walletId">Id of the client's wallet.</param>
-        /// <param name="id">Id of the order.</param>
-        /// <returns>Order details.</returns>
-        [Get("/api/orders/{walletId}/{id}")]
-        Task<OrderModel> GetOrderAsync(string walletId, string id);
-
-        /// <summary>
-        /// Gets all orders with filters. Filter isn't applied if equal tu null.
-        /// </summary>
-        /// <param name="walletId">Client's wallet Id.</param>
-        /// <param name="assetPair">Asset pair of the order.</param>
-        /// <param name="timeFrom">Time from which the orders should be filtered (inclusive).</param>
-        /// <param name="timeTo">Time up to which the orders should be filtered (inclusive).</param>
-        /// <param name="limit">How many records to take.</param>
-        /// <returns></returns>
+        /// <param name="clientId">The identifier for client.</param>
+        /// <param name="assetPair">The identifier of asset pair.</param>
+        /// <param name="dateFrom">The date from which the orders should be filtered.</param>
+        /// <param name="dateTo">The date up to which the orders should be filtered.</param>
+        /// <param name="skip">The number of records to skip.</param>
+        /// <param name="take">The number of records to take.</param>
+        /// <returns>A collection of orders.</returns>
         [Get("/api/orders")]
-        Task<IReadOnlyList<OrderModel>> GetAllOrdersAsync(
-            string walletId,
-            string assetPair,
-            DateTime? timeFrom,
-            DateTime? timeTo,
-            int limit);
+        Task<IReadOnlyList<OrderModel>> GetAsync(string clientId, string assetPair, DateTime? dateFrom,
+            DateTime? dateTo, int skip, int take);
+        
+        /// <summary>
+        /// Creates new order.
+        /// </summary>
+        /// <returns>The order.</returns>
+        /// <exception cref="ClientApiException">If price not found.</exception>
+        /// <exception cref="ClientApiException">If Instrument inactive.</exception>
+        /// <exception cref="ClientApiException">If price expired.</exception>
+        /// <exception cref="ClientApiException">If quote volume too small.</exception>
+        /// <exception cref="ClientApiException">If quote volume too much.</exception>
+        [Post("/api/orders")]
+        Task<OrderModel> CreateAsync([Body] CreateOrderModel model);
+
     }
 }

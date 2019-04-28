@@ -1,12 +1,15 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Subscriber;
+using Lykke.Service.EasyBuy.Domain.Entities.OrderBooks;
 using Lykke.Service.EasyBuy.Domain.Services;
+using Lykke.Service.EasyBuy.DomainServices.Extensions;
+using Lykke.Service.EasyBuy.Settings.ServiceSettings.Rabbit.Subscribers;
 using OrderBook = Lykke.Common.ExchangeAdapter.Contracts.OrderBook;
 
 namespace Lykke.Service.EasyBuy.Rabbit.Subscribers
@@ -14,38 +17,32 @@ namespace Lykke.Service.EasyBuy.Rabbit.Subscribers
     [UsedImplicitly]
     public class OrderBookSubscriber : IDisposable
     {
-        private readonly string _exchangeName;
-        private readonly string _connectionString;
-        private readonly string _queueSuffix;
+        private readonly SubscriberSettings _subscriberSettings;
         private readonly IOrderBookService _orderBookService;
         private readonly ILogFactory _logFactory;
         private readonly ILog _log;
 
         private RabbitMqSubscriber<OrderBook> _subscriber;
-        
+
         public OrderBookSubscriber(
-            string exchangeName,
-            string connectionString,
-            string queueSuffix,
+            SubscriberSettings subscriberSettings,
             IOrderBookService orderBookService,
             ILogFactory logFactory)
         {
-            _exchangeName = exchangeName;
+            _subscriberSettings = subscriberSettings;
             _orderBookService = orderBookService;
             _logFactory = logFactory;
-            _connectionString = connectionString;
-            _queueSuffix = queueSuffix;
 
             _log = logFactory.CreateLog(this);
         }
-        
+
         public void Start()
         {
             var settings = RabbitMqSubscriptionSettings
-                .ForSubscriber(_connectionString, _exchangeName, _queueSuffix);
+                .ForSubscriber(_subscriberSettings.ConnectionString, _subscriberSettings.Exchange,
+                    _subscriberSettings.QueueSuffix);
 
             settings.DeadLetterExchangeName = null;
-            settings.IsDurable = false;
 
             _subscriber = new RabbitMqSubscriber<OrderBook>(_logFactory, settings,
                     new ResilientErrorHandlingStrategy(_logFactory, settings, TimeSpan.FromSeconds(10)))
@@ -70,11 +67,26 @@ namespace Lykke.Service.EasyBuy.Rabbit.Subscribers
         {
             try
             {
-                await _orderBookService.HandleAsync(orderBook.Source, Mapper.Map<Domain.OrderBook>(orderBook));
+                await _orderBookService.HandleAsync(new Domain.Entities.OrderBooks.OrderBook
+                {
+                    Exchange = orderBook.Source,
+                    AssetPair = orderBook.Asset,
+                    Timestamp = orderBook.Timestamp,
+                    SellLevels = orderBook.Asks.Select(o => new OrderBookLevel
+                    {
+                        Price = o.Price,
+                        Volume = o.Volume
+                    }).ToList(),
+                    BuyLevels = orderBook.Bids.Select(o => new OrderBookLevel
+                    {
+                        Price = o.Price,
+                        Volume = o.Volume
+                    }).ToList()
+                });
             }
             catch (Exception exception)
             {
-                _log.Error(exception, "An error occurred during processing lykke order book", orderBook);
+                _log.ErrorWithDetails(exception, "An error occurred during processing lykke order book", orderBook);
             }
         }
     }

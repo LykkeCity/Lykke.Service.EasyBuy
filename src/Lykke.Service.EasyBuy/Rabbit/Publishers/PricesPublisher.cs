@@ -5,27 +5,25 @@ using Common.Log;
 using Lykke.Common.Log;
 using Lykke.RabbitMqBroker.Publisher;
 using Lykke.RabbitMqBroker.Subscriber;
-using Lykke.Service.EasyBuy.Contract;
-using Lykke.Service.EasyBuy.Domain;
 using Lykke.Service.EasyBuy.Domain.Services;
-using Lykke.Service.EasyBuy.Settings.ServiceSettings;
-using Price = Lykke.Service.EasyBuy.Contract.Price;
+using Lykke.Service.EasyBuy.DomainServices.Extensions;
+using Lykke.Service.EasyBuy.Settings.ServiceSettings.Rabbit.Publishers;
 
 namespace Lykke.Service.EasyBuy.Rabbit.Publishers
 {
     public class PricesPublisher : IPricesPublisher, IDisposable
     {
-        private readonly RabbitPublishSettings _publishSettings;
+        private readonly PublisherSettings _publisherSettings;
         private readonly ILogFactory _logFactory;
         private readonly ILog _log;
-        
-        private RabbitMqPublisher<Price> _publisher;
+
+        private RabbitMqPublisher<Contract.Price> _publisher;
 
         public PricesPublisher(
-            RabbitPublishSettings subscribeSettings,
+            PublisherSettings publisherSettings,
             ILogFactory logFactory)
         {
-            _publishSettings = subscribeSettings;
+            _publisherSettings = publisherSettings;
             _logFactory = logFactory;
             _log = logFactory.CreateLog(this);
         }
@@ -33,10 +31,10 @@ namespace Lykke.Service.EasyBuy.Rabbit.Publishers
         public void Start()
         {
             var settings = RabbitMqSubscriptionSettings
-                .ForPublisher(_publishSettings.ConnectionString, _publishSettings.ExchangeName);
+                .ForPublisher(_publisherSettings.ConnectionString, _publisherSettings.Exchange);
 
-            _publisher = new RabbitMqPublisher<Price>(_logFactory, settings)
-                .SetSerializer(new JsonMessageSerializer<Price>())
+            _publisher = new RabbitMqPublisher<Contract.Price>(_logFactory, settings)
+                .SetSerializer(new JsonMessageSerializer<Contract.Price>())
                 .DisableInMemoryQueuePersistence()
                 .Start();
         }
@@ -50,16 +48,16 @@ namespace Lykke.Service.EasyBuy.Rabbit.Publishers
         {
             _publisher?.Stop();
         }
-        
-        public async Task Publish(Domain.Price price)
+
+        public async Task PublishAsync(Domain.Entities.Prices.Price price)
         {
             try
             {
-                await _publisher.ProduceAsync(Mapper.Map<Price>(price));
+                await _publisher.ProduceAsync(Mapper.Map<Contract.Price>(price));
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                _log.Warning("Could not publish price.", e);
+                _log.WarningWithDetails("An error occurred while publishing price.", exception, price);
                 throw;
             }
         }
