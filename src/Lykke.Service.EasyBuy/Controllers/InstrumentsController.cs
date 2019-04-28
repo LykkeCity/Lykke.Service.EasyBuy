@@ -37,7 +37,7 @@ namespace Lykke.Service.EasyBuy.Controllers
         /// <inheritdoc/>
         /// <response code="200">An instrument.</response>
         /// <response code="404">Instrument does not exist.</response>
-        [HttpGet("{assetPairId}")]
+        [HttpGet("{instrumentId}")]
         [ProducesResponseType(typeof(InstrumentModel), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorResponse), (int) HttpStatusCode.NotFound)]
         public async Task<InstrumentModel> GetByIdAsync(string instrumentId)
