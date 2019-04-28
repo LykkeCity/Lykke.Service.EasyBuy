@@ -27,10 +27,9 @@ namespace Lykke.Service.EasyBuy
                 options.Extend = (serviceCollection, settings) =>
                 {
                     Mapper.Initialize(cfg =>
-                    {
-                        cfg.AddProfiles(typeof(PostgresRepositories.AutoMapperProfile));
-                        cfg.AddProfiles(typeof(AutoMapperProfile));
-                    });
+                        {
+                            cfg.AddMaps(typeof(PostgresRepositories.AutoMapperProfile), typeof(AutoMapperProfile));
+                        });
 
                     Mapper.AssertConfigurationIsValid();
                 };
